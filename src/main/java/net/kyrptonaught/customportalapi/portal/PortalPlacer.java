@@ -82,6 +82,6 @@ public class PortalPlacer {
     }
 
     private static boolean canHoldPortal(BlockState state) {
-        return state.isSolid();
+        return !state.getCollisionShape(null, null).isEmpty();
     }
 }

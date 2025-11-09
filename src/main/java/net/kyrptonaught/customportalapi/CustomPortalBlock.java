@@ -9,7 +9,6 @@ import net.kyrptonaught.customportalapi.util.CustomTeleporter;
 import net.kyrptonaught.customportalapi.util.PortalLink;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCollisionHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.BlockStateParticleEffect;
@@ -21,10 +20,10 @@ import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.*;
 import net.minecraft.world.tick.ScheduledTickView;
+
 import org.jetbrains.annotations.Nullable;
 
 public class CustomPortalBlock extends Block implements Portal {
@@ -48,13 +47,26 @@ public class CustomPortalBlock extends Block implements Portal {
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-        Block block = getPortalBase((World) world, pos);
-        PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(block);
+    protected BlockState getStateForNeighborUpdate(
+            BlockState state,
+            WorldView world,
+            ScheduledTickView tickView,
+            BlockPos pos,
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            net.minecraft.util.math.random.Random random
+    ) {
+        Block base = getPortalBase((World) world, pos);
+        PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(base);
         if (link != null) {
-            PortalFrameTester portalFrameTester = link.getFrameTester().createInstanceOfPortalFrameTester().init((WorldAccess) world, pos, CustomPortalHelper.getAxisFrom(state), block);
-            if (portalFrameTester.isAlreadyLitPortalFrame())
+            PortalFrameTester tester = link.getFrameTester()
+                    .createInstanceOfPortalFrameTester()
+                    .init((WorldAccess) world, pos, CustomPortalHelper.getAxisFrom(state), base);
+
+            if (tester.isAlreadyLitPortalFrame()) {
                 return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+            }
         }
         //todo handle unknown portallink
 
@@ -67,13 +79,13 @@ public class CustomPortalBlock extends Block implements Portal {
     }
 
     @Override
-    protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
         return ItemStack.EMPTY;
     }
 
     @Override
     @Environment(EnvType.CLIENT)
-    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+    public void randomDisplayTick(BlockState state, World world, BlockPos pos, net.minecraft.util.math.random.Random random) {
         if (random.nextInt(100) == 0) {
             world.playSoundClient((double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, SoundEvents.BLOCK_PORTAL_AMBIENT, SoundCategory.BLOCKS, 0.5F, random.nextFloat() * 0.4F + 0.8F, false);
         }
@@ -102,12 +114,8 @@ public class CustomPortalBlock extends Block implements Portal {
         }
     }
 
-    @Override
-    protected void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler) {
-        if (entity.canUsePortals(false)) {
-            entity.tryUsePortal(this, pos);
-        }
-    }
+    // Note: onEntityCollision is handled by EntityPortalDetectionMixin
+    // because the method signature changed in 1.21 and doesn't properly override
 
     public Block getPortalBase(World world, BlockPos pos) {
         return CustomPortalHelper.getPortalBaseDefault(world, pos);
@@ -125,10 +133,5 @@ public class CustomPortalBlock extends Block implements Portal {
     @Override
     public @Nullable TeleportTarget createTeleportTarget(ServerWorld world, Entity entity, BlockPos pos) {
         return CustomTeleporter.createTeleportTarget(world, entity, getPortalBase(world, pos), pos);
-    }
-
-    @Override
-    public Effect getPortalEffect() {
-        return Effect.CONFUSION;
     }
 }

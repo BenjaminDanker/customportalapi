@@ -10,12 +10,17 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFactory;
 import net.minecraft.client.particle.PortalParticle;
 import net.minecraft.client.particle.SpriteProvider;
+import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.util.math.random.Random;
 
+@Environment(EnvType.CLIENT)
 public class CustomPortalParticle extends PortalParticle {
-    protected CustomPortalParticle(ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-        super(clientWorld, d, e, f, g, h, i);
+
+    protected CustomPortalParticle(ClientWorld world, double x, double y, double z,
+                                   double vx, double vy, double vz, Sprite sprite) {
+        super(world, x, y, z, vx, vy, vz, sprite);
     }
 
     @Environment(EnvType.CLIENT)
@@ -26,17 +31,21 @@ public class CustomPortalParticle extends PortalParticle {
             this.spriteProvider = spriteProvider;
         }
 
-        public Particle createParticle(BlockStateParticleEffect blockStateParticleEffect, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-            // Particle portalParticle = (new PortalParticle.Factory(spriteProvider).createParticle(null,clientWorld,d,e,f,g,h,i));
-            CustomPortalParticle portalParticle = new CustomPortalParticle(clientWorld, d, e, f, g, h, i);
-            portalParticle.setSprite(this.spriteProvider);
-            Block block = blockStateParticleEffect.getBlockState().getBlock();
+        @Override
+        public Particle createParticle(BlockStateParticleEffect effect, ClientWorld world,
+                                       double x, double y, double z,
+                                       double vx, double vy, double vz,
+                                       Random random) {
+            Sprite sprite = this.spriteProvider.getSprite(random);
+            CustomPortalParticle p = new CustomPortalParticle(world, x, y, z, vx, vy, vz, sprite);
+
+            Block block = effect.getBlockState().getBlock();
             PortalLink link = CustomPortalApiRegistry.getPortalLinkFromBase(block);
             if (link != null) {
                 float[] rgb = ColorUtil.getColorForBlock(link.colorID);
-                portalParticle.setColor(rgb[0], rgb[1], rgb[2]);
+                p.setColor(rgb[0], rgb[1], rgb[2]);
             }
-            return portalParticle;
+            return p;
         }
     }
 }

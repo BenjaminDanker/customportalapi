@@ -3,6 +3,7 @@ package net.kyrptonaught.customportalapi.mixin.portalLighters;
 import net.kyrptonaught.customportalapi.portal.PortalIgnitionSource;
 import net.kyrptonaught.customportalapi.portal.PortalPlacer;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.util.math.BlockPos;
@@ -21,6 +22,7 @@ public abstract class PotionEntityMixin extends ThrownItemEntity {
 
     @Inject(method = "extinguishFire", at = @At("HEAD"))
     public void attemptPortalLight(BlockPos pos, CallbackInfo ci) {
-        PortalPlacer.attemptPortalLight(this.getWorld(), pos, PortalIgnitionSource.WATER);
+        World world = ((Entity)(Object)this).getEntityWorld();
+        PortalPlacer.attemptPortalLight(world, pos, PortalIgnitionSource.WATER);
     }
 }

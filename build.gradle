@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
+	id 'fabric-loom' version '1.11.8'
 	id 'maven-publish'
 }
 
@@ -31,6 +31,12 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+
+	options.compilerArgs += [
+        "-Xlint:all",
+        "-Xdiags:verbose",
+        "-parameters"
+    ]
 }
 
 java {

@@ -120,7 +120,7 @@ public class VanillaPortalAreaHelper extends PortalFrameTester {
 
     protected boolean canHoldPortal(World world, BlockPos pos) {
         BlockState blockState = world.getBlockState(pos);
-        return blockState.isSolid() && blockState.isSolidBlock(world, pos) && !isEmptySpace(blockState);
+        return blockState.isSolidBlock(world, pos) && !isEmptySpace(blockState);
     }
 
     @Override
@@ -205,12 +205,12 @@ public class VanillaPortalAreaHelper extends PortalFrameTester {
     }
 
     protected void fillAirAroundPortal(World world, BlockPos pos) {
-        if (world.getBlockState(pos).isSolid() || world.getBlockState(pos).isSolidBlock(world, pos))
+        if (world.getBlockState(pos).isSolidBlock(world, pos))
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.FORCE_STATE);
     }
 
     protected void placeLandingPad(World world, BlockPos pos, BlockState frameBlock) {
-        if (!world.getBlockState(pos).isSolid())
+        if (!world.getBlockState(pos).isSolidBlock(world, pos))
             world.setBlockState(pos, frameBlock);
     }
 }

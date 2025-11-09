@@ -4,6 +4,7 @@
   "package": "net.kyrptonaught.customportalapi.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "EntityPortalDetectionMixin",
     "portalLighters.AbstractFireMixin",
     "portalLighters.FluidBlockPlacedMixin",
     "portalLighters.PotionEntityMixin"

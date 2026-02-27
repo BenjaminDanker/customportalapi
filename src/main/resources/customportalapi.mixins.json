@@ -5,9 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "EntityPortalDetectionMixin",
-    "portalLighters.AbstractFireMixin",
-    "portalLighters.FluidBlockPlacedMixin",
-    "portalLighters.PotionEntityMixin"
+    "portalLighters.AbstractFireMixin"
   ],
   "client": [
     "client.ClientPlayerEntityMixin",
